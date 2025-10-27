@@ -125,6 +125,15 @@ const main = async () => {
         });
         console.log('✓ Bot created successfully');
 
+        // Add health check endpoint for Railway
+        adapterProvider.server.get('/health', (req, res) => {
+            res.status(200).json({
+                status: 'ok',
+                timestamp: new Date().toISOString(),
+                message: 'Bot is running'
+            });
+        });
+
         httpInject(adapterProvider.server);
         httpServer(+PORT);
 
