@@ -6,21 +6,29 @@ import { memoryService } from './services/memory.service.js'
 
 const PORT = process.env.PORT ?? 3008
 
-// Flujo de bienvenida - solo la primera vez
-const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
-  .addAction(async (_ctx, { flowDynamic, state }) => {
-    const hasGreeted = await state.get('hasGreeted')
+// Comando /ayuda - Mostrar ayuda
+const helpFlow = addKeyword<Provider, Database>(['/ayuda', 'ayuda', '/help', 'help'])
+  .addAnswer([
+    '📋 *Comandos disponibles:*',
+    '',
+    '💬 *Conversación:* Simplemente escríbeme cualquier cosa y conversemos',
+    '🔄 */reset* - Reinicia la conversación',
+    '❓ */ayuda* - Muestra este mensaje',
+    '',
+    'Soy un asistente con IA. Puedo ayudarte con preguntas, tareas, y más. 😊',
+  ].join('\n'))
 
-    if (!hasGreeted) {
-      await state.update({ hasGreeted: true })
-      await flowDynamic('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente de WhatsApp.')
-      await flowDynamic('Puedo ayudarte con lo que necesites. Solo escríbeme y conversemos. 😊')
-    }
+// Comando /reset - Reiniciar conversación
+const resetFlow = addKeyword<Provider, Database>(['/reset', 'reset'])
+  .addAction(async (ctx, { flowDynamic }) => {
+    const userId = ctx.from
+    memoryService.clearHistory(userId)
+    await flowDynamic('🔄 Conversación reiniciada. Empecemos de nuevo!')
   })
 
-// Flujo principal con IA - captura CUALQUIER mensaje
+// Flujo principal con IA - captura TODOS los mensajes que no sean comandos
 const aiFlow = addKeyword<Provider, Database>(EVENTS.ACTION)
-  .addAction(async (ctx, { flowDynamic }) => {
+  .addAction(async (ctx, { flowDynamic, state }) => {
     const userId = ctx.from
     const userMessage = ctx.body
 
@@ -30,6 +38,17 @@ const aiFlow = addKeyword<Provider, Database>(EVENTS.ACTION)
     }
 
     try {
+      // Saludo inicial solo la primera vez
+      const hasGreeted = await state.get('hasGreeted')
+      if (!hasGreeted) {
+        await state.update({ hasGreeted: true })
+        await flowDynamic('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente de WhatsApp.')
+        await flowDynamic('Puedo ayudarte con lo que necesites. Solo escríbeme y conversemos. 😊')
+
+        // No procesar el primer mensaje como pregunta, solo saludar
+        return
+      }
+
       console.log(`[${userId}] Usuario: ${userMessage}`)
 
       // Agregar mensaje del usuario al historial
@@ -54,36 +73,13 @@ const aiFlow = addKeyword<Provider, Database>(EVENTS.ACTION)
     }
   })
 
-// Comando /reset - Reiniciar conversación
-const resetFlow = addKeyword<Provider, Database>(['/reset', 'reset'])
-  .addAction(async (ctx, { flowDynamic }) => {
-    const userId = ctx.from
-
-    memoryService.clearHistory(userId)
-
-    await flowDynamic('🔄 Conversación reiniciada. Empecemos de nuevo!')
-  })
-
-// Comando /ayuda - Mostrar ayuda
-const helpFlow = addKeyword<Provider, Database>(['/ayuda', 'ayuda', '/help', 'help'])
-  .addAnswer([
-    '📋 *Comandos disponibles:*',
-    '',
-    '💬 *Conversación:* Simplemente escríbeme cualquier cosa y conversemos',
-    '🔄 */reset* - Reinicia la conversación',
-    '❓ */ayuda* - Muestra este mensaje',
-    '',
-    'Soy un asistente con IA. Puedo ayudarte con preguntas, tareas, y más. 😊',
-  ].join('\n'))
-
 const main = async () => {
   console.log('🤖 Iniciando Mudafy Bot con OpenAI...')
 
   const adapterFlow = createFlow([
-    welcomeFlow,
     helpFlow,
     resetFlow,
-    aiFlow, // Este debe ir al final para capturar todo lo demás
+    aiFlow, // Este captura todo lo que no sean los comandos de arriba
   ])
 
   const adapterProvider = createProvider(Provider)
@@ -101,7 +97,7 @@ const main = async () => {
 
   console.log('✅ Bot iniciado correctamente')
   console.log('🌐 Abre http://localhost:' + PORT + ' para ver el QR')
-  console.log('🤖 OpenAI GPT-4 integrado')
+  console.log('🤖 OpenAI GPT-4o-mini integrado')
   console.log('⏳ Esperando conexión con WhatsApp...')
 
   process.on('SIGINT', () => {
