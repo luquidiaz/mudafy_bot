@@ -113,6 +113,16 @@ const main = async () => {
         const adapterDB = new MemoryDB();
         console.log('✓ Database created');
 
+        // Add health check endpoint BEFORE creating bot for Railway
+        adapterProvider.server.get('/health', (req, res) => {
+            res.status(200).json({
+                status: 'ok',
+                timestamp: new Date().toISOString(),
+                message: 'Bot is running'
+            });
+        });
+        console.log('✓ Health check endpoint registered');
+
         /**
          * Configuración y creación del bot
          * @type {import('@builderbot/bot').Bot<BaileysProvider, MemoryDB>}
@@ -125,19 +135,10 @@ const main = async () => {
         });
         console.log('✓ Bot created successfully');
 
-        // Add health check endpoint for Railway
-        adapterProvider.server.get('/health', (req, res) => {
-            res.status(200).json({
-                status: 'ok',
-                timestamp: new Date().toISOString(),
-                message: 'Bot is running'
-            });
-        });
-
         httpInject(adapterProvider.server);
         httpServer(+PORT);
 
-        console.log('✅ Bot is ready and running!');
+        console.log(`✅ Bot is ready and running on port ${PORT}!`);
         console.log('📱 Waiting for QR code or connection...');
     } catch (error) {
         console.error('❌ Error starting bot:', error);
