@@ -94,6 +94,8 @@ const main = async () => {
     const adapterProvider = createProvider(BaileysProvider, {
         groupsIgnore: true,
         readStatus: false,
+        usePairingCode: false,
+        phoneNumber: null
     });
 
     /**
