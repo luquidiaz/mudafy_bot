@@ -4,6 +4,8 @@ import { MemoryDB } from '@builderbot/bot'
 import { BaileysProvider } from '@builderbot/provider-baileys'
 import { toAsk, httpInject } from "@builderbot-plugins/openai-assistants"
 import { typing } from "./utils/presence"
+import { existsSync, createReadStream } from 'fs'
+import { join } from 'path'
 
 /** Puerto en el que se ejecutará el servidor */
 const PORT = process.env.PORT ?? 3008
@@ -143,17 +145,15 @@ const main = async () => {
         // This needs to be after createBot() to override Baileys' default handler
         const originalIndexHome = adapterProvider.indexHome;
         adapterProvider.indexHome = (req, res) => {
-            const fs = require('fs');
-            const path = require('path');
-            const qrPath = path.join(process.cwd(), 'bot.qr.png');
+            const qrPath = join(process.cwd(), 'bot.qr.png');
 
-            if (fs.existsSync(qrPath)) {
+            if (existsSync(qrPath)) {
                 // If QR exists, use original handler
                 try {
                     originalIndexHome.call(adapterProvider, req, res);
                 } catch (e) {
                     // Fallback if original fails
-                    const fileStream = fs.createReadStream(qrPath);
+                    const fileStream = createReadStream(qrPath);
                     res.writeHead(200, { 'Content-Type': 'image/png' });
                     fileStream.pipe(res);
                 }
