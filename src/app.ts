@@ -123,17 +123,42 @@ const main = async () => {
             }));
         });
 
-        // Override root path to prevent crashes when QR doesn't exist
-        adapterProvider.server.get('/', (req, res) => {
+        console.log('✓ Health check endpoint registered');
+
+        /**
+         * Configuración y creación del bot
+         * @type {import('@builderbot/bot').Bot<BaileysProvider, MemoryDB>}
+         */
+        console.log('🤖 Creating bot...');
+        const { httpServer } = await createBot({
+            flow: adapterFlow,
+            provider: adapterProvider,
+            database: adapterDB,
+        });
+        console.log('✓ Bot created successfully');
+
+        httpInject(adapterProvider.server);
+
+        // Override root path AFTER bot creation to prevent crashes when QR doesn't exist
+        // This needs to be after createBot() to override Baileys' default handler
+        const originalIndexHome = adapterProvider.indexHome;
+        adapterProvider.indexHome = (req, res) => {
             const fs = require('fs');
             const path = require('path');
             const qrPath = path.join(process.cwd(), 'bot.qr.png');
 
             if (fs.existsSync(qrPath)) {
-                const fileStream = fs.createReadStream(qrPath);
-                res.writeHead(200, { 'Content-Type': 'image/png' });
-                fileStream.pipe(res);
+                // If QR exists, use original handler
+                try {
+                    originalIndexHome.call(adapterProvider, req, res);
+                } catch (e) {
+                    // Fallback if original fails
+                    const fileStream = fs.createReadStream(qrPath);
+                    res.writeHead(200, { 'Content-Type': 'image/png' });
+                    fileStream.pipe(res);
+                }
             } else {
+                // Show waiting page
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(`
                     <!DOCTYPE html>
@@ -161,22 +186,9 @@ const main = async () => {
                     </html>
                 `);
             }
-        });
-        console.log('✓ Health check endpoint registered');
+        };
+        console.log('✓ Root endpoint override registered');
 
-        /**
-         * Configuración y creación del bot
-         * @type {import('@builderbot/bot').Bot<BaileysProvider, MemoryDB>}
-         */
-        console.log('🤖 Creating bot...');
-        const { httpServer } = await createBot({
-            flow: adapterFlow,
-            provider: adapterProvider,
-            database: adapterDB,
-        });
-        console.log('✓ Bot created successfully');
-
-        httpInject(adapterProvider.server);
         httpServer(+PORT);
 
         console.log(`✅ Bot is ready and running on port ${PORT}!`);
