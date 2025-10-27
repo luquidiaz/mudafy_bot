@@ -122,6 +122,46 @@ const main = async () => {
                 message: 'Bot is running'
             }));
         });
+
+        // Override root path to prevent crashes when QR doesn't exist
+        adapterProvider.server.get('/', (req, res) => {
+            const fs = require('fs');
+            const path = require('path');
+            const qrPath = path.join(process.cwd(), 'bot.qr.png');
+
+            if (fs.existsSync(qrPath)) {
+                const fileStream = fs.createReadStream(qrPath);
+                res.writeHead(200, { 'Content-Type': 'image/png' });
+                fileStream.pipe(res);
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta http-equiv="refresh" content="5">
+                        <title>WhatsApp Bot - Waiting for QR</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #1a1a1a; color: #fff; }
+                            .container { max-width: 600px; margin: 0 auto; }
+                            h1 { color: #25D366; }
+                            .spinner { border: 4px solid #333; border-top: 4px solid #25D366; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+                            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h1>🤖 WhatsApp Bot</h1>
+                            <div class="spinner"></div>
+                            <p>Waiting for WhatsApp to generate QR code...</p>
+                            <p>This page will automatically refresh every 5 seconds.</p>
+                            <p><small>Status: Bot is running and waiting for connection</small></p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+            }
+        });
         console.log('✓ Health check endpoint registered');
 
         /**
