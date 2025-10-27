@@ -81,41 +81,62 @@ const welcomeFlow = addKeyword<BaileysProvider, MemoryDB>(EVENTS.WELCOME)
  * @returns {Promise<void>}
  */
 const main = async () => {
-    /**
-     * Flujo del bot
-     * @type {import('@builderbot/bot').Flow<BaileysProvider, MemoryDB>}
-     */
-    const adapterFlow = createFlow([welcomeFlow]);
+    try {
+        console.log('🚀 Starting bot initialization...');
+        console.log('📋 Environment variables:');
+        console.log('   - PORT:', PORT);
+        console.log('   - ASSISTANT_ID:', ASSISTANT_ID ? '✓ Set' : '✗ Missing');
 
-    /**
-     * Proveedor de servicios de mensajería
-     * @type {BaileysProvider}
-     */
-    const adapterProvider = createProvider(BaileysProvider, {
-        groupsIgnore: true,
-        readStatus: false,
-        usePairingCode: false,
-        phoneNumber: null
-    });
+        /**
+         * Flujo del bot
+         * @type {import('@builderbot/bot').Flow<BaileysProvider, MemoryDB>}
+         */
+        const adapterFlow = createFlow([welcomeFlow]);
+        console.log('✓ Flow created');
 
-    /**
-     * Base de datos en memoria para el bot
-     * @type {MemoryDB}
-     */
-    const adapterDB = new MemoryDB();
+        /**
+         * Proveedor de servicios de mensajería
+         * @type {BaileysProvider}
+         */
+        const adapterProvider = createProvider(BaileysProvider, {
+            groupsIgnore: true,
+            readStatus: false,
+            usePairingCode: false,
+            phoneNumber: null
+        });
+        console.log('✓ Provider created');
 
-    /**
-     * Configuración y creación del bot
-     * @type {import('@builderbot/bot').Bot<BaileysProvider, MemoryDB>}
-     */
-    const { httpServer } = await createBot({
-        flow: adapterFlow,
-        provider: adapterProvider,
-        database: adapterDB,
-    });
+        /**
+         * Base de datos en memoria para el bot
+         * @type {MemoryDB}
+         */
+        const adapterDB = new MemoryDB();
+        console.log('✓ Database created');
 
-    httpInject(adapterProvider.server);
-    httpServer(+PORT);
+        /**
+         * Configuración y creación del bot
+         * @type {import('@builderbot/bot').Bot<BaileysProvider, MemoryDB>}
+         */
+        console.log('🤖 Creating bot...');
+        const { httpServer } = await createBot({
+            flow: adapterFlow,
+            provider: adapterProvider,
+            database: adapterDB,
+        });
+        console.log('✓ Bot created successfully');
+
+        httpInject(adapterProvider.server);
+        httpServer(+PORT);
+
+        console.log('✅ Bot is ready and running!');
+        console.log('📱 Waiting for QR code or connection...');
+    } catch (error) {
+        console.error('❌ Error starting bot:', error);
+        throw error;
+    }
 };
 
-main();
+main().catch(err => {
+    console.error('💥 Fatal error:', err);
+    process.exit(1);
+});
