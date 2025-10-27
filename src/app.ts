@@ -6,10 +6,17 @@ import { memoryService } from './services/memory.service.js'
 
 const PORT = process.env.PORT ?? 3008
 
-// Flujo de bienvenida
+// Flujo de bienvenida - solo la primera vez
 const welcomeFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
-  .addAnswer('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente de WhatsApp.')
-  .addAnswer('Puedo ayudarte con lo que necesites. Solo escríbeme y conversemos. 😊')
+  .addAction(async (_ctx, { flowDynamic, state }) => {
+    const hasGreeted = await state.get('hasGreeted')
+
+    if (!hasGreeted) {
+      await state.update({ hasGreeted: true })
+      await flowDynamic('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente de WhatsApp.')
+      await flowDynamic('Puedo ayudarte con lo que necesites. Solo escríbeme y conversemos. 😊')
+    }
+  })
 
 // Flujo principal con IA - captura CUALQUIER mensaje
 const aiFlow = addKeyword<Provider, Database>(EVENTS.ACTION)
