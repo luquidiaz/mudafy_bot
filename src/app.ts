@@ -115,11 +115,12 @@ const main = async () => {
 
         // Add health check endpoint BEFORE creating bot for Railway
         adapterProvider.server.get('/health', (req, res) => {
-            res.status(200).json({
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
                 status: 'ok',
                 timestamp: new Date().toISOString(),
                 message: 'Bot is running'
-            });
+            }));
         });
         console.log('✓ Health check endpoint registered');
 
