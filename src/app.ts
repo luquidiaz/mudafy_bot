@@ -3,85 +3,99 @@ import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
 import { MemoryDB as Database } from '@builderbot/bot'
 import { openAIService } from './services/openai.service.js'
 import { memoryService } from './services/memory.service.js'
+import { typing } from './utils/presence.js'
 
 const PORT = process.env.PORT ?? 3008
 
-// Comando /ayuda - Mostrar ayuda
-const helpFlow = addKeyword<Provider, Database>(['/ayuda', 'ayuda', '/help', 'help'])
-  .addAnswer([
-    '📋 *Comandos disponibles:*',
-    '',
-    '💬 *Conversación:* Simplemente escríbeme cualquier cosa y conversemos',
-    '🔄 */reset* - Reinicia la conversación',
-    '❓ */ayuda* - Muestra este mensaje',
-    '',
-    'Soy un asistente con IA. Puedo ayudarte con preguntas, tareas, y más. 😊',
-  ].join('\n'))
+// Track if user has been greeted
+const greetedUsers = new Set<string>()
 
-// Comando /reset - Reiniciar conversación
-const resetFlow = addKeyword<Provider, Database>(['/reset', 'reset'])
-  .addAction(async (ctx, { flowDynamic }) => {
+// Flujo principal que captura TODO
+const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
+  .addAction(async (ctx, { flowDynamic, provider }) => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+    console.log('📨 MENSAJE RECIBIDO')
+    console.log('   De:', ctx.from)
+    console.log('   Mensaje:', ctx.body)
+    console.log('   Nombre:', ctx.name)
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
     const userId = ctx.from
-    memoryService.clearHistory(userId)
-    await flowDynamic('🔄 Conversación reiniciada. Empecemos de nuevo!')
-  })
+    const userMessage = ctx.body?.trim()
 
-// Flujo principal con IA - captura TODOS los mensajes que no sean comandos
-const aiFlow = addKeyword<Provider, Database>(EVENTS.ACTION)
-  .addAction(async (ctx, { flowDynamic, state }) => {
-    const userId = ctx.from
-    const userMessage = ctx.body
+    if (!userMessage) {
+      console.log('⚠️  Mensaje vacío - ignorado')
+      return
+    }
 
-    // Ignorar mensajes vacíos o muy cortos
-    if (!userMessage || userMessage.trim().length < 1) {
+    // Comando /ayuda
+    if (userMessage.toLowerCase() === '/ayuda' || userMessage.toLowerCase() === 'ayuda') {
+      console.log('📋 Comando: /ayuda')
+      await flowDynamic([
+        '📋 *Comandos disponibles:*',
+        '',
+        '💬 *Conversación:* Simplemente escríbeme cualquier cosa',
+        '🔄 */reset* - Reinicia la conversación',
+        '❓ */ayuda* - Muestra este mensaje',
+      ].join('\n'))
+      return
+    }
+
+    // Comando /reset
+    if (userMessage.toLowerCase() === '/reset' || userMessage.toLowerCase() === 'reset') {
+      console.log('🔄 Comando: /reset')
+      memoryService.clearHistory(userId)
+      greetedUsers.delete(userId)
+      await flowDynamic('🔄 Conversación reiniciada!')
       return
     }
 
     try {
-      // Saludo inicial solo la primera vez
-      const hasGreeted = await state.get('hasGreeted')
-      if (!hasGreeted) {
-        await state.update({ hasGreeted: true })
-        await flowDynamic('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente de WhatsApp.')
-        await flowDynamic('Puedo ayudarte con lo que necesites. Solo escríbeme y conversemos. 😊')
-
-        // No procesar el primer mensaje como pregunta, solo saludar
+      // Saludo inicial (solo primera vez)
+      if (!greetedUsers.has(userId)) {
+        console.log('👋 Primera vez - enviando saludo')
+        greetedUsers.add(userId)
+        await flowDynamic('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente.')
+        await flowDynamic('Pregúntame lo que quieras! 😊')
         return
       }
 
-      console.log(`[${userId}] Usuario: ${userMessage}`)
+      console.log('🤖 Procesando con OpenAI...')
 
-      // Agregar mensaje del usuario al historial
+      // Agregar mensaje del usuario
       memoryService.addMessage(userId, 'user', userMessage)
 
-      // Obtener historial de conversación
+      // Obtener historial
       const history = memoryService.getHistory(userId)
+      console.log(`   📚 Historial: ${history.length} mensajes`)
 
-      // Consultar a OpenAI con el historial
+      // Mostrar "escribiendo..." mientras procesa
+      await typing(ctx, provider)
+
+      // Consultar OpenAI
+      console.log('   ⏳ Llamando a OpenAI...')
       const aiResponse = await openAIService.chat(history)
+      console.log(`   ✅ Respuesta recibida: "${aiResponse.substring(0, 80)}..."`)
 
-      console.log(`[${userId}] AI: ${aiResponse}`)
-
-      // Agregar respuesta al historial
+      // Guardar respuesta
       memoryService.addMessage(userId, 'assistant', aiResponse)
 
-      // Enviar respuesta al usuario
+      // Enviar al usuario
       await flowDynamic(aiResponse)
+      console.log('   📤 Respuesta enviada al usuario')
+
     } catch (error) {
-      console.error('Error en aiFlow:', error)
-      await flowDynamic('Lo siento, ocurrió un error. Por favor intenta nuevamente.')
+      console.error('❌ ERROR:', error)
+      await flowDynamic('Lo siento, hubo un error. Intenta de nuevo.')
     }
   })
 
 const main = async () => {
-  console.log('🤖 Iniciando Mudafy Bot con OpenAI...')
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+  console.log('🤖 INICIANDO MUDAFY BOT')
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
-  const adapterFlow = createFlow([
-    helpFlow,
-    resetFlow,
-    aiFlow, // Este captura todo lo que no sean los comandos de arriba
-  ])
-
+  const adapterFlow = createFlow([mainFlow])
   const adapterProvider = createProvider(Provider)
   const adapterDB = new Database()
 
@@ -95,13 +109,15 @@ const main = async () => {
 
   httpServer(+PORT)
 
-  console.log('✅ Bot iniciado correctamente')
-  console.log('🌐 Abre http://localhost:' + PORT + ' para ver el QR')
-  console.log('🤖 OpenAI GPT-4o-mini integrado')
-  console.log('⏳ Esperando conexión con WhatsApp...')
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+  console.log('✅ BOT INICIADO CORRECTAMENTE')
+  console.log('🌐 QR Code: http://localhost:' + PORT)
+  console.log('🤖 OpenAI: gpt-4o-mini')
+  console.log('⏳ Esperando mensajes...')
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
   process.on('SIGINT', () => {
-    console.log('👋 Cerrando bot...')
+    console.log('\n👋 Cerrando bot...')
     process.exit(0)
   })
 }
