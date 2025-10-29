@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Muestra el indicador "escribiendo..." en WhatsApp
  */

@@ -2,27 +2,31 @@
 
 ## Estado del Proyecto
 
-**Versión actual:** 1.0.0 - Bot Básico Deployeado
-**Última actualización:** 2025-10-27
-**Estado:** ✅ Funcionando en producción (Railway)
+**Versión actual:** 2.0.0 - Multi-Agent con OpenAI
+**Última actualización:** 2025-10-29
+**Estado:** ✅ Funcionando localmente con arquitectura multi-agent
 
 ---
 
 ## Objetivo del Proyecto
 
-Chatbot de WhatsApp construido con BuilderBot + Baileys.
+Chatbot inteligente de WhatsApp para Mudafy con arquitectura multi-agent.
 
-**Fase actual (v1.0):**
-- Bot básico funcional
-- Responde a saludos (hi, hello, hola)
-- Deployeado 24/7 en Railway
+**Fase actual (v2.0):**
+- ✅ Bot con OpenAI Assistants API
+- ✅ Arquitectura multi-agent (Orchestrator + 2 agents especializados)
+- ✅ Info Agent con File Search y Vector Store
+- ✅ Conversation Agent para chat general
+- ✅ Typing indicators ("escribiendo...")
+- ✅ Memoria conversacional con threads
+- ✅ Comandos: /ayuda, /reset
 
 **Roadmap futuro:**
-- Integración con OpenAI GPT-4
-- Generación de imágenes con DALL-E
-- Comandos especiales (/ayuda, /reset, /imagen)
-- Memoria conversacional
-- Sistema de permisos por usuario
+- [ ] Deployment a Railway con multi-agent
+- [ ] Más agentes especializados (ventas, soporte, etc.)
+- [ ] Generación de imágenes con DALL-E
+- [ ] Sistema de permisos por usuario
+- [ ] Analytics y métricas de conversaciones
 
 ---
 

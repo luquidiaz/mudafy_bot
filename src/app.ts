@@ -2,7 +2,6 @@ import { createBot, createProvider, createFlow, addKeyword, EVENTS } from '@buil
 import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
 import { MemoryDB as Database } from '@builderbot/bot'
 import { openAIService } from './services/openai.service.js'
-import { memoryService } from './services/memory.service.js'
 import { typing } from './utils/presence.js'
 
 const PORT = process.env.PORT ?? 3008
@@ -44,7 +43,7 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
     // Comando /reset
     if (userMessage.toLowerCase() === '/reset' || userMessage.toLowerCase() === 'reset') {
       console.log('🔄 Comando: /reset')
-      memoryService.clearHistory(userId)
+      await openAIService.clearUserThread(userId)
       greetedUsers.delete(userId)
       await flowDynamic('🔄 Conversación reiniciada!')
       return
@@ -55,30 +54,20 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
       if (!greetedUsers.has(userId)) {
         console.log('👋 Primera vez - enviando saludo')
         greetedUsers.add(userId)
-        await flowDynamic('¡Hola! 👋 Soy *Mudafy*, tu asistente inteligente.')
+        await flowDynamic('¡Hola! 👋 Soy *Sofia de Mudafy*, tu asistente inteligente.')
         await flowDynamic('Pregúntame lo que quieras! 😊')
         return
       }
 
-      console.log('🤖 Procesando con OpenAI...')
-
-      // Agregar mensaje del usuario
-      memoryService.addMessage(userId, 'user', userMessage)
-
-      // Obtener historial
-      const history = memoryService.getHistory(userId)
-      console.log(`   📚 Historial: ${history.length} mensajes`)
+      console.log('🤖 Procesando con Multi-Agent...')
 
       // Mostrar "escribiendo..." mientras procesa
       await typing(ctx, provider)
 
-      // Consultar OpenAI
-      console.log('   ⏳ Llamando a OpenAI...')
-      const aiResponse = await openAIService.chat(history)
-      console.log(`   ✅ Respuesta recibida: "${aiResponse.substring(0, 80)}..."`)
-
-      // Guardar respuesta
-      memoryService.addMessage(userId, 'assistant', aiResponse)
+      // Procesar mensaje con arquitectura multi-agent
+      console.log('   ⏳ Enviando a Orchestrator...')
+      const aiResponse = await openAIService.processMessage(userId, userMessage)
+      console.log(`   ✅ Respuesta final recibida: "${aiResponse.substring(0, 80)}..."`)
 
       // Enviar al usuario
       await flowDynamic(aiResponse)
@@ -112,7 +101,7 @@ const main = async () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log('✅ BOT INICIADO CORRECTAMENTE')
   console.log('🌐 QR Code: http://localhost:' + PORT)
-  console.log('🤖 OpenAI: gpt-4o-mini')
+  console.log('🎭 Multi-Agent: Orchestrator + 2 Agents')
   console.log('⏳ Esperando mensajes...')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
