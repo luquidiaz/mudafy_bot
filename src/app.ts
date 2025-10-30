@@ -5,6 +5,7 @@ import { openAIService } from './services/openai.service.js'
 import { typing } from './utils/presence.js'
 import { cacheService } from './services/cache.service.js'
 import { classifierService } from './services/classifier.service.js'
+import { feedbackService } from './services/feedback.service.js'
 
 const PORT = process.env.PORT ?? 3008
 
