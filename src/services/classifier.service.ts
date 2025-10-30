@@ -558,11 +558,11 @@ export class ClassifierService {
     console.log('🧠 CLASSIFIER STATS')
     console.log(`   Base Keywords: ${stats.baseKeywords}`)
     console.log(`   Learned Keywords: ${stats.learnedKeywords}`)
-    console.log(`   By Route:`)
+    console.log('   By Route:')
     console.log(`     - mudafy_info: ${stats.learnedByRoute.mudafy_info}`)
     console.log(`     - conversation: ${stats.learnedByRoute.conversation}`)
     console.log(`     - property_title: ${stats.learnedByRoute.property_title}`)
-    console.log(`   Top Learned:`)
+    console.log('   Top Learned:')
     stats.topLearnedKeywords.forEach((kw, i) => {
       console.log(`     ${i + 1}. "${kw.keyword}" → ${kw.route} (${kw.weight.toFixed(2)})`)
     })

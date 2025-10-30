@@ -281,17 +281,17 @@ export class CacheService {
 
   private createAdapter(): CacheAdapter {
     switch (this.config.adapter) {
-      case 'file':
-        return new FileCacheAdapter(this.config.cacheDir, this.config.ttl)
+    case 'file':
+      return new FileCacheAdapter(this.config.cacheDir, this.config.ttl)
 
-      case 'redis':
-        // TODO: Implementar Redis adapter cuando lo necesites
-        console.warn('⚠️  Redis adapter no implementado, usando Memory')
-        return new MemoryCacheAdapter(this.config.ttl)
+    case 'redis':
+      // TODO: Implementar Redis adapter cuando lo necesites
+      console.warn('⚠️  Redis adapter no implementado, usando Memory')
+      return new MemoryCacheAdapter(this.config.ttl)
 
-      case 'memory':
-      default:
-        return new MemoryCacheAdapter(this.config.ttl)
+    case 'memory':
+    default:
+      return new MemoryCacheAdapter(this.config.ttl)
     }
   }
 
