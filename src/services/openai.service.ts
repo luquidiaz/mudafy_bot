@@ -10,18 +10,20 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY || ''
 const ASSISTANT_ORCHESTRATOR = process.env.ASSISTANT_ORCHESTRATOR || ''
 const ASSISTANT_CONVERSATION = process.env.ASSISTANT_CONVERSATION || ''
 const ASSISTANT_INFO = process.env.ASSISTANT_INFO || ''
+const ASSISTANT_MARKET_DATA = process.env.ASSISTANT_MARKET_DATA || ''
 
 console.log('🔑 OpenAI API Key:', OPENAI_API_KEY ? `${OPENAI_API_KEY.substring(0, 20)}...` : 'NO CONFIGURADA')
 console.log('🎭 Orchestrator:', ASSISTANT_ORCHESTRATOR || 'NO CONFIGURADO')
 console.log('💬 Conversation Agent:', ASSISTANT_CONVERSATION || 'NO CONFIGURADO')
-console.log('📚 Info Agent:', ASSISTANT_INFO || 'NO CONFIGURADO')
+console.log('📚 Knowledge Agent (Info):', ASSISTANT_INFO || 'NO CONFIGURADO')
+console.log('📊 Market Data Agent:', ASSISTANT_MARKET_DATA || 'NO CONFIGURADO')
 
 if (!OPENAI_API_KEY) {
   console.warn('⚠️  OPENAI_API_KEY no configurada. El bot no podrá usar IA.')
 }
 
-if (!ASSISTANT_ORCHESTRATOR || !ASSISTANT_CONVERSATION || !ASSISTANT_INFO) {
-  console.warn('⚠️  Falta configurar los Assistants IDs.')
+if (!ASSISTANT_ORCHESTRATOR || !ASSISTANT_CONVERSATION || !ASSISTANT_INFO || !ASSISTANT_MARKET_DATA) {
+  console.warn('⚠️  Falta configurar algunos Assistants IDs.')
 }
 
 const openai = new OpenAI({
@@ -109,14 +111,20 @@ export class OpenAIService {
   /**
    * Parsea la respuesta del orchestrator para extraer la ruta
    */
-  private parseRoute(orchestratorResponse: string): 'mudafy_info' | 'conversation' | null {
+  private parseRoute(orchestratorResponse: string): 'mudafy_info' | 'conversation' | 'market_data' | null {
     const lowerResponse = orchestratorResponse.toLowerCase()
 
-    if (lowerResponse.includes('route: mudafy_info') || lowerResponse.includes('mudafy_info')) {
+    // Buscar "route:" seguido del agent
+    if (lowerResponse.includes('route: market_data') || lowerResponse.includes('market_data_agent')) {
+      return 'market_data'
+    }
+
+    if (lowerResponse.includes('route: knowledge') || lowerResponse.includes('knowledge_agent') ||
+        lowerResponse.includes('route: mudafy_info') || lowerResponse.includes('mudafy_info')) {
       return 'mudafy_info'
     }
 
-    if (lowerResponse.includes('route: conversation') || lowerResponse.includes('conversation')) {
+    if (lowerResponse.includes('route: conversation') || lowerResponse.includes('conversation_agent')) {
       return 'conversation'
     }
 
@@ -176,7 +184,7 @@ export class OpenAIService {
         content: userMessage,
       })
 
-      let finalRoute: 'mudafy_info' | 'conversation' =
+      let finalRoute: 'mudafy_info' | 'conversation' | 'market_data' =
         classification.route === 'property_title' ? 'mudafy_info' : classification.route as any
 
       // ====================================================================
@@ -209,9 +217,12 @@ export class OpenAIService {
       // ====================================================================
       let finalResponse: string
 
-      if (finalRoute === 'mudafy_info') {
-        console.log('   📚 Ejecutando Info Agent...')
-        finalResponse = await this.runAssistant(threadId, ASSISTANT_INFO, 'Info Agent')
+      if (finalRoute === 'market_data') {
+        console.log('   📊 Ejecutando Market Data Agent...')
+        finalResponse = await this.runAssistant(threadId, ASSISTANT_MARKET_DATA, 'Market Data Agent')
+      } else if (finalRoute === 'mudafy_info') {
+        console.log('   📚 Ejecutando Knowledge Agent...')
+        finalResponse = await this.runAssistant(threadId, ASSISTANT_INFO, 'Knowledge Agent')
       } else {
         console.log('   💬 Ejecutando Conversation Agent...')
         finalResponse = await this.runAssistant(threadId, ASSISTANT_CONVERSATION, 'Conversation Agent')

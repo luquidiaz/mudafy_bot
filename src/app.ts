@@ -61,7 +61,8 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
         '🧠 *Clasificador:*',
         `• Keywords base: ${classifierStats.baseKeywords}`,
         `• Keywords aprendidas: ${classifierStats.learnedKeywords}`,
-        `• Info: ${classifierStats.learnedByRoute.mudafy_info}`,
+        `• Knowledge: ${classifierStats.learnedByRoute.mudafy_info}`,
+        `• Market Data: ${classifierStats.learnedByRoute.market_data}`,
         `• Conversación: ${classifierStats.learnedByRoute.conversation}`,
       ].join('\n'))
       return

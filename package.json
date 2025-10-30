@@ -12,7 +12,10 @@
     "build": "npx rollup -c",
     "start": "node ./dist/app.js",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
+    "lint:fix": "eslint src --ext .ts --fix",
+    "create-market-data-agent": "tsx scripts/create-market-data-agent.ts",
+    "update-market-data": "tsx scripts/update-market-data.ts",
+    "update-orchestrator-market": "tsx scripts/update-orchestrator-with-market.ts"
   },
   "keywords": [
     "chatbot",

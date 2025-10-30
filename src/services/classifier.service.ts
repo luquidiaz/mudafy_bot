@@ -13,7 +13,7 @@ import { cacheService } from './cache.service.js'
 // TIPOS Y CONFIGURACIÓN
 // ============================================================================
 
-export type RouteType = 'mudafy_info' | 'conversation' | 'property_title'
+export type RouteType = 'mudafy_info' | 'conversation' | 'property_title' | 'market_data'
 
 export interface ClassificationResult {
   route: RouteType
@@ -137,6 +137,84 @@ export class ClassifierService {
         'titulo de publicacion',
         'cómo hacer un título',
         'como hacer un titulo',
+      ],
+    ],
+    [
+      'market_data',
+      [
+        // Preguntas de precio
+        'cuanto vale',
+        'cuánto vale',
+        'cuanto cuesta',
+        'cuánto cuesta',
+        'precio',
+        'precios',
+        'valor',
+        'cotización',
+        'cotizacion',
+
+        // Zonas y barrios
+        'palermo',
+        'belgrano',
+        'recoleta',
+        'caballito',
+        'san isidro',
+        'vicente lopez',
+        'vicente lópez',
+        'zona norte',
+        'zona sur',
+        'zona oeste',
+        'caba',
+        'capital federal',
+        'gba',
+
+        // Mercado
+        'mercado',
+        'tendencia',
+        'tendencias',
+        'subida',
+        'bajada',
+        'sube',
+        'baja',
+        'evolución',
+        'evolucion',
+
+        // Datos numéricos
+        'm2',
+        'metro cuadrado',
+        'metros cuadrados',
+        'usd',
+        'dolar',
+        'dólar',
+        'dolares',
+        'dólares',
+
+        // Inversión
+        'invertir',
+        'inversión',
+        'inversion',
+        'rentabilidad',
+        'ganancia',
+        'retorno',
+        'roi',
+
+        // Comparación
+        'comparar',
+        'comparación',
+        'comparacion',
+        'vs',
+        'versus',
+        'mejor zona',
+        'peor zona',
+        'conviene',
+
+        // Datos de mercado
+        'expensas',
+        'tiempo de venta',
+        'demanda',
+        'oferta',
+        'stock',
+        'disponible',
       ],
     ],
     [
@@ -529,6 +607,7 @@ export class ClassifierService {
       mudafy_info: 0,
       conversation: 0,
       property_title: 0,
+      market_data: 0,
     }
 
     for (const pattern of this.learnedKeywords.values()) {
@@ -560,6 +639,7 @@ export class ClassifierService {
     console.log(`   Learned Keywords: ${stats.learnedKeywords}`)
     console.log('   By Route:')
     console.log(`     - mudafy_info: ${stats.learnedByRoute.mudafy_info}`)
+    console.log(`     - market_data: ${stats.learnedByRoute.market_data}`)
     console.log(`     - conversation: ${stats.learnedByRoute.conversation}`)
     console.log(`     - property_title: ${stats.learnedByRoute.property_title}`)
     console.log('   Top Learned:')

@@ -1,0 +1,126 @@
+{
+  "metadata": {
+    "version": "2025-01",
+    "fecha_actualizacion": "2025-01-15",
+    "fuente": "Reporte interno Mudafy",
+    "region": "CABA y GBA"
+  },
+  "precios_promedio": {
+    "venta": {
+      "CABA": {
+        "Palermo": {
+          "precio_m2_usd": 4500,
+          "variacion_mensual": "+2.5%",
+          "stock_disponible": 850,
+          "tiempo_venta_promedio_dias": 45,
+          "tipologia_mas_demandada": "2 ambientes"
+        },
+        "Belgrano": {
+          "precio_m2_usd": 4200,
+          "variacion_mensual": "+1.8%",
+          "stock_disponible": 620,
+          "tiempo_venta_promedio_dias": 38,
+          "tipologia_mas_demandada": "3 ambientes"
+        },
+        "Recoleta": {
+          "precio_m2_usd": 5000,
+          "variacion_mensual": "+3.1%",
+          "stock_disponible": 420,
+          "tiempo_venta_promedio_dias": 52,
+          "tipologia_mas_demandada": "3 ambientes"
+        },
+        "Caballito": {
+          "precio_m2_usd": 3200,
+          "variacion_mensual": "+1.2%",
+          "stock_disponible": 780,
+          "tiempo_venta_promedio_dias": 40,
+          "tipologia_mas_demandada": "2 ambientes"
+        }
+      },
+      "GBA_Norte": {
+        "San Isidro": {
+          "precio_m2_usd": 3800,
+          "variacion_mensual": "+2.0%",
+          "stock_disponible": 340,
+          "tiempo_venta_promedio_dias": 50,
+          "tipologia_mas_demandada": "Casas"
+        },
+        "Vicente Lopez": {
+          "precio_m2_usd": 3500,
+          "variacion_mensual": "+1.5%",
+          "stock_disponible": 280,
+          "tiempo_venta_promedio_dias": 42,
+          "tipologia_mas_demandada": "3 ambientes"
+        }
+      }
+    },
+    "alquiler": {
+      "CABA": {
+        "Palermo": {
+          "precio_m2_usd": 22,
+          "variacion_mensual": "+3.0%",
+          "rentabilidad_promedio": "4.2%",
+          "demanda": "Alta"
+        },
+        "Belgrano": {
+          "precio_m2_usd": 20,
+          "variacion_mensual": "+2.5%",
+          "rentabilidad_promedio": "4.0%",
+          "demanda": "Media-Alta"
+        },
+        "Caballito": {
+          "precio_m2_usd": 16,
+          "variacion_mensual": "+2.0%",
+          "rentabilidad_promedio": "4.5%",
+          "demanda": "Alta"
+        }
+      }
+    }
+  },
+  "tendencias": {
+    "general": "El mercado inmobiliario muestra una recuperación sostenida con un aumento promedio del 2.3% en los precios durante el último mes. La demanda se mantiene fuerte en zonas céntricas.",
+    "por_zona": {
+      "CABA_Centro": "Alta demanda en Palermo y Recoleta. Los inversores buscan propiedades para alquiler temporal.",
+      "CABA_Periferica": "Caballito y Villa Urquiza muestran el mejor ratio precio/m2 con demanda creciente.",
+      "GBA_Norte": "San Isidro mantiene liderazgo en casas de alta gama. Vicente López crece en departamentos."
+    },
+    "tipologias_mas_buscadas": [
+      "2 ambientes en CABA (40% de búsquedas)",
+      "3 ambientes en GBA Norte (35%)",
+      "Monoambientes para inversión (15%)"
+    ]
+  },
+  "expensas_promedio": {
+    "CABA": {
+      "Palermo": {
+        "expensas_mensuales_usd": 180,
+        "incluye": "Seguridad, mantenimiento, servicios comunes"
+      },
+      "Belgrano": {
+        "expensas_mensuales_usd": 160,
+        "incluye": "Mantenimiento, servicios comunes"
+      },
+      "Recoleta": {
+        "expensas_mensuales_usd": 200,
+        "incluye": "Seguridad 24hs, mantenimiento, amenities"
+      }
+    }
+  },
+  "comisiones_mercado": {
+    "venta": {
+      "comprador": "4% + IVA sobre el valor de la propiedad",
+      "vendedor": "Negociable (típicamente 2-3% + IVA)"
+    },
+    "alquiler": {
+      "inquilino": "Primer mes de alquiler + IVA",
+      "propietario": "50% del primer mes + IVA"
+    }
+  },
+  "insights": [
+    "Las propiedades con amenities (pileta, gimnasio, SUM) se venden 15% más rápido que el promedio.",
+    "Los departamentos de 2 ambientes representan el 40% de las transacciones en CABA.",
+    "El GBA Norte muestra un crecimiento del 8% anual en casas con jardín.",
+    "Propiedades publicadas con fotos profesionales reciben 3x más consultas.",
+    "El tiempo promedio de venta se redujo de 60 a 45 días en el último trimestre."
+  ]
+}
