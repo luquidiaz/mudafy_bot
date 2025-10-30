@@ -1,4 +1,7 @@
-import { Message } from './openai.service.js'
+interface Message {
+  role: 'user' | 'assistant'
+  content: string
+}
 
 interface ConversationHistory {
   [userId: string]: Message[]
