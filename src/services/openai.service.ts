@@ -1,5 +1,7 @@
 import OpenAI from 'openai'
 import dotenv from 'dotenv'
+import { classifierService } from './classifier.service.js'
+import { cacheService } from './cache.service.js'
 
 // Cargar variables de entorno
 dotenv.config()
@@ -128,42 +130,103 @@ export class OpenAIService {
   }
 
   /**
-   * Procesa un mensaje del usuario usando arquitectura multi-agent
+   * Procesa un mensaje del usuario usando arquitectura multi-agent OPTIMIZADA
    */
   async processMessage(userId: string, userMessage: string): Promise<string> {
     if (!OPENAI_API_KEY) {
       return 'Lo siento, el servicio de IA no está configurado correctamente.'
     }
 
+    const startTime = Date.now()
+
     try {
-      // 1. Obtener o crear thread
+      // ====================================================================
+      // 1. VERIFICAR CACHÉ
+      // ====================================================================
+      const cached = await cacheService.getResponse(userId, userMessage)
+      if (cached) {
+        const duration = Date.now() - startTime
+        console.log(`   🎯 CACHE HIT! (${duration}ms)`)
+        return cached
+      }
+      console.log('   🔍 Cache miss - procesando...')
+
+      // ====================================================================
+      // 2. CLASIFICACIÓN INTELIGENTE
+      // ====================================================================
+      const classification = await classifierService.classify(userMessage)
+      console.log(
+        `   🧠 Clasificación: ${classification.route} (${classification.confidence}) via ${classification.method} (${classification.duration}ms)`
+      )
+
+      if (classification.keywords && classification.keywords.length > 0) {
+        console.log(`      Keywords: ${classification.keywords.slice(0, 5).join(', ')}`)
+      }
+
+      // ====================================================================
+      // 3. OBTENER O CREAR THREAD
+      // ====================================================================
       const threadId = await this.getOrCreateThread(userId)
 
-      // 2. Agregar mensaje del usuario al thread
+      // ====================================================================
+      // 4. AGREGAR MENSAJE AL THREAD
+      // ====================================================================
       await openai.beta.threads.messages.create(threadId, {
         role: 'user',
         content: userMessage,
       })
 
-      // 3. Consultar al Orchestrator
-      console.log('   🎭 Consultando Orchestrator...')
-      const orchestratorResponse = await this.runAssistant(threadId, ASSISTANT_ORCHESTRATOR, 'Orchestrator')
-      console.log(`   🎭 Orchestrator respondió: ${orchestratorResponse.substring(0, 100)}...`)
+      let finalRoute: 'mudafy_info' | 'conversation' =
+        classification.route === 'property_title' ? 'mudafy_info' : classification.route as any
 
-      // 4. Parsear la ruta
-      const route = this.parseRoute(orchestratorResponse)
-      console.log(`   🚦 Ruta detectada: ${route}`)
+      // ====================================================================
+      // 5. DECIDIR SI USAR ORCHESTRATOR
+      // ====================================================================
+      if (classification.confidence === 'low' || classification.method === 'orchestrator') {
+        console.log('   🎭 Consultando Orchestrator (caso ambiguo)...')
+        const orchestratorResponse = await this.runAssistant(threadId, ASSISTANT_ORCHESTRATOR, 'Orchestrator')
+        console.log(`   🎭 Orchestrator decidió: ${orchestratorResponse.substring(0, 80)}...`)
 
-      // 5. Ejecutar el agent correspondiente
+        const orchestratorRoute = this.parseRoute(orchestratorResponse) || 'conversation'
+        console.log(`   🚦 Ruta final (Orchestrator): ${orchestratorRoute}`)
+
+        // Aprender desde el Orchestrator
+        if (classification.route !== orchestratorRoute) {
+          await classifierService.learnFromOrchestrator(
+            userMessage,
+            orchestratorRoute as any,
+            classification.route
+          )
+        }
+
+        finalRoute = orchestratorRoute
+      } else {
+        console.log(`   ⚡ Fast route (${classification.confidence} confidence): ${finalRoute}`)
+      }
+
+      // ====================================================================
+      // 6. EJECUTAR AGENT ESPECIALIZADO
+      // ====================================================================
       let finalResponse: string
 
-      if (route === 'mudafy_info') {
+      if (finalRoute === 'mudafy_info') {
         console.log('   📚 Ejecutando Info Agent...')
         finalResponse = await this.runAssistant(threadId, ASSISTANT_INFO, 'Info Agent')
       } else {
         console.log('   💬 Ejecutando Conversation Agent...')
         finalResponse = await this.runAssistant(threadId, ASSISTANT_CONVERSATION, 'Conversation Agent')
       }
+
+      // ====================================================================
+      // 7. GUARDAR EN CACHÉ
+      // ====================================================================
+      await cacheService.setResponse(userId, userMessage, finalResponse)
+
+      // ====================================================================
+      // 8. MÉTRICAS
+      // ====================================================================
+      const totalDuration = Date.now() - startTime
+      console.log(`   ⏱️  Tiempo total: ${totalDuration}ms`)
 
       return finalResponse.trim()
 

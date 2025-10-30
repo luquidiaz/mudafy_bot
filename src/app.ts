@@ -3,6 +3,8 @@ import { BaileysProvider as Provider } from '@builderbot/provider-baileys'
 import { MemoryDB as Database } from '@builderbot/bot'
 import { openAIService } from './services/openai.service.js'
 import { typing } from './utils/presence.js'
+import { cacheService } from './services/cache.service.js'
+import { classifierService } from './services/classifier.service.js'
 
 const PORT = process.env.PORT ?? 3008
 
@@ -35,7 +37,32 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
         '',
         '💬 *Conversación:* Simplemente escríbeme cualquier cosa',
         '🔄 */reset* - Reinicia la conversación',
+        '📊 */stats* - Ver estadísticas de rendimiento',
         '❓ */ayuda* - Muestra este mensaje',
+      ].join('\n'))
+      return
+    }
+
+    // Comando /stats (solo para desarrollo)
+    if (userMessage.toLowerCase() === '/stats') {
+      console.log('📊 Comando: /stats')
+      const cacheStats = await cacheService.getStats()
+      const classifierStats = classifierService.getStats()
+
+      await flowDynamic([
+        '📊 *Estadísticas del Bot*',
+        '',
+        '💾 *Caché:*',
+        `• Hits: ${cacheStats.hits}`,
+        `• Misses: ${cacheStats.misses}`,
+        `• Hit Rate: ${(cacheStats.hitRate * 100).toFixed(1)}%`,
+        `• Entradas: ${cacheStats.totalEntries}`,
+        '',
+        '🧠 *Clasificador:*',
+        `• Keywords base: ${classifierStats.baseKeywords}`,
+        `• Keywords aprendidas: ${classifierStats.learnedKeywords}`,
+        `• Info: ${classifierStats.learnedByRoute.mudafy_info}`,
+        `• Conversación: ${classifierStats.learnedByRoute.conversation}`,
       ].join('\n'))
       return
     }
@@ -102,8 +129,17 @@ const main = async () => {
   console.log('✅ BOT INICIADO CORRECTAMENTE')
   console.log('🌐 QR Code: http://localhost:' + PORT)
   console.log('🎭 Multi-Agent: Orchestrator + 2 Agents')
+  console.log('⚡ Optimizaciones: Caché + Clasificador Híbrido')
   console.log('⏳ Esperando mensajes...')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+
+  // Log de estadísticas cada 10 minutos
+  setInterval(async () => {
+    console.log('\n')
+    await cacheService.logStats()
+    classifierService.logStats()
+    console.log('\n')
+  }, 10 * 60 * 1000)
 
   process.on('SIGINT', () => {
     console.log('\n👋 Cerrando bot...')
