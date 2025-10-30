@@ -6,6 +6,7 @@ import { typing } from './utils/presence.js'
 import { cacheService } from './services/cache.service.js'
 import { classifierService } from './services/classifier.service.js'
 import { feedbackService } from './services/feedback.service.js'
+import { implicitFeedbackService } from './services/implicit-feedback.service.js'
 
 const PORT = process.env.PORT ?? 3008
 
@@ -40,7 +41,25 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
         '🔄 */reset* - Reinicia la conversación',
         '📊 */stats* - Ver estadísticas de rendimiento',
         '❓ */ayuda* - Muestra este mensaje',
+        '',
+        '_Tip: Podés enviar 👍 o 👎 si querés dar feedback_',
       ].join('\n'))
+      return
+    }
+
+    // Feedback pasivo: 👍 (positivo)
+    if (userMessage === '👍' || userMessage.toLowerCase() === '/good') {
+      console.log('👍 Feedback positivo recibido')
+      await feedbackService.submitFeedback(userId, 'good')
+      await flowDynamic('¡Gracias por el feedback! 😊')
+      return
+    }
+
+    // Feedback pasivo: 👎 (negativo)
+    if (userMessage === '👎' || userMessage.toLowerCase() === '/bad') {
+      console.log('👎 Feedback negativo recibido')
+      await feedbackService.submitFeedback(userId, 'bad')
+      await flowDynamic('Gracias por avisar. Seguiré mejorando 🙏')
       return
     }
 
@@ -85,7 +104,23 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
         greetedUsers.add(userId)
         await flowDynamic('¡Hola! 👋 Soy *Sofia de Mudafy*, tu asistente inteligente.')
         await flowDynamic('Pregúntame lo que quieras! 😊')
+        await flowDynamic('_Tip: Podés enviarme 👍 si alguna respuesta te es útil_')
         return
+      }
+
+      // ====================================================================
+      // FEEDBACK IMPLÍCITO: Analizar mensaje anterior
+      // ====================================================================
+      const implicitFeedback = implicitFeedbackService.analyzeUserResponse(userId, userMessage)
+
+      if (implicitFeedback === 'satisfied') {
+        console.log(`   ✅ Feedback implícito POSITIVO detectado`)
+      }
+
+      if (implicitFeedback === 'dissatisfied') {
+        console.log(`   ❌ Feedback implícito NEGATIVO detectado`)
+        console.log(`      Mensaje: "${userMessage}"`)
+        // Aquí podrías alertar o registrar para review
       }
 
       console.log('🤖 Procesando con Multi-Agent...')
@@ -95,12 +130,25 @@ const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
 
       // Procesar mensaje con arquitectura multi-agent
       console.log('   ⏳ Enviando a Orchestrator...')
+      const startTime = Date.now()
       const aiResponse = await openAIService.processMessage(userId, userMessage)
+      const responseTime = Date.now() - startTime
+
       console.log(`   ✅ Respuesta final recibida: "${aiResponse.substring(0, 80)}..."`)
 
       // Enviar al usuario
       await flowDynamic(aiResponse)
       console.log('   📤 Respuesta enviada al usuario')
+
+      // ====================================================================
+      // FEEDBACK IMPLÍCITO: Registrar respuesta del bot
+      // ====================================================================
+      // Obtener el route del último procesamiento
+      // (Necesitamos exportarlo desde openai.service, por ahora usamos 'unknown')
+      implicitFeedbackService.registerBotResponse(userId, aiResponse, 'unknown')
+
+      // Registrar para feedback service (con tiempo de respuesta)
+      feedbackService.registerResponse(userId, userMessage, aiResponse, 'unknown', responseTime)
 
     } catch (error) {
       console.error('❌ ERROR:', error)
@@ -140,7 +188,11 @@ const main = async () => {
     console.log('\n')
     await cacheService.logStats()
     classifierService.logStats()
+    feedbackService.logStats()
     console.log('\n')
+
+    // Cleanup de contextos antiguos
+    implicitFeedbackService.cleanup()
   }, 10 * 60 * 1000)
 
   process.on('SIGINT', () => {
