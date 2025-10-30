@@ -13,6 +13,7 @@
     "start": "node ./dist/app.js",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
+    "test:feedback": "tsx scripts/test-feedback.ts",
     "create-market-data-agent": "tsx scripts/create-market-data-agent.ts",
     "update-market-data": "tsx scripts/update-market-data.ts",
     "update-orchestrator-market": "tsx scripts/update-orchestrator-with-market.ts"
