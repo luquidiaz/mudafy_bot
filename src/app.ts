@@ -14,7 +14,7 @@ const PORT = process.env.PORT ?? 3008
 const greetedUsers = new Set<string>()
 
 // Flujo principal que captura TODO
-const mainFlow = addKeyword<Provider, Database>(EVENTS.WELCOME)
+const mainFlow = addKeyword<Provider, Database>([EVENTS.WELCOME, EVENTS.VOICE_NOTE])
   .addAction(async (ctx, { flowDynamic, provider }) => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     console.log('📨 MENSAJE RECIBIDO')
