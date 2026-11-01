@@ -114,11 +114,11 @@ const mainFlow = addKeyword<Provider, Database>([EVENTS.WELCOME, EVENTS.VOICE_NO
       const implicitFeedback = implicitFeedbackService.analyzeUserResponse(userId, userMessage)
 
       if (implicitFeedback === 'satisfied') {
-        console.log(`   ✅ Feedback implícito POSITIVO detectado`)
+        console.log('   ✅ Feedback implícito POSITIVO detectado')
       }
 
       if (implicitFeedback === 'dissatisfied') {
-        console.log(`   ❌ Feedback implícito NEGATIVO detectado`)
+        console.log('   ❌ Feedback implícito NEGATIVO detectado')
         console.log(`      Mensaje: "${userMessage}"`)
         // Aquí podrías alertar o registrar para review
       }

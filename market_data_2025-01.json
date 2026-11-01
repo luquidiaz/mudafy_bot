@@ -1,0 +1,163 @@
+{
+  "metadata": {
+    "version": "2025-01",
+    "fecha_actualizacion": "2025-01-30",
+    "fuente": "Datos de ejemplo para Market Data Agent - Mudafy",
+    "nota": "Estos son datos de ejemplo. Actualizar con datos reales mensuales."
+  },
+  "precios_promedio": {
+    "venta": {
+      "CABA": {
+        "Palermo": {
+          "precio_m2_usd": 4500,
+          "variacion_mensual": "+2.5%",
+          "variacion_anual": "+8.2%",
+          "tiempo_venta_promedio_dias": 45,
+          "stock_disponible": 1250,
+          "tendencia": "al alza"
+        },
+        "Belgrano": {
+          "precio_m2_usd": 4200,
+          "variacion_mensual": "+1.8%",
+          "variacion_anual": "+6.5%",
+          "tiempo_venta_promedio_dias": 52,
+          "stock_disponible": 890,
+          "tendencia": "estable"
+        },
+        "Recoleta": {
+          "precio_m2_usd": 4800,
+          "variacion_mensual": "+3.2%",
+          "variacion_anual": "+9.1%",
+          "tiempo_venta_promedio_dias": 38,
+          "stock_disponible": 650,
+          "tendencia": "al alza"
+        },
+        "Caballito": {
+          "precio_m2_usd": 3200,
+          "variacion_mensual": "+1.2%",
+          "variacion_anual": "+5.8%",
+          "tiempo_venta_promedio_dias": 60,
+          "stock_disponible": 1100,
+          "tendencia": "estable"
+        },
+        "Nuñez": {
+          "precio_m2_usd": 3800,
+          "variacion_mensual": "+2.0%",
+          "variacion_anual": "+7.3%",
+          "tiempo_venta_promedio_dias": 48,
+          "stock_disponible": 420,
+          "tendencia": "al alza"
+        }
+      },
+      "GBA_Zona_Norte": {
+        "Vicente_Lopez": {
+          "precio_m2_usd": 3600,
+          "variacion_mensual": "+1.5%",
+          "variacion_anual": "+6.8%",
+          "tiempo_venta_promedio_dias": 55,
+          "stock_disponible": 380,
+          "tendencia": "estable"
+        },
+        "San_Isidro": {
+          "precio_m2_usd": 3900,
+          "variacion_mensual": "+2.2%",
+          "variacion_anual": "+7.5%",
+          "tiempo_venta_promedio_dias": 50,
+          "stock_disponible": 520,
+          "tendencia": "al alza"
+        },
+        "Tigre": {
+          "precio_m2_usd": 2800,
+          "variacion_mensual": "+1.0%",
+          "variacion_anual": "+4.5%",
+          "tiempo_venta_promedio_dias": 70,
+          "stock_disponible": 680,
+          "tendencia": "estable"
+        }
+      }
+    },
+    "alquiler": {
+      "CABA": {
+        "Palermo": {
+          "precio_m2_usd": 18,
+          "variacion_mensual": "+3.5%",
+          "variacion_anual": "+12.5%",
+          "tiempo_alquiler_promedio_dias": 25,
+          "stock_disponible": 890,
+          "tendencia": "al alza"
+        },
+        "Belgrano": {
+          "precio_m2_usd": 16,
+          "variacion_mensual": "+2.8%",
+          "variacion_anual": "+10.2%",
+          "tiempo_alquiler_promedio_dias": 30,
+          "stock_disponible": 650,
+          "tendencia": "al alza"
+        },
+        "Caballito": {
+          "precio_m2_usd": 12,
+          "variacion_mensual": "+2.0%",
+          "variacion_anual": "+8.5%",
+          "tiempo_alquiler_promedio_dias": 35,
+          "stock_disponible": 1200,
+          "tendencia": "estable"
+        }
+      }
+    }
+  },
+  "insights": {
+    "general": [
+      "Enero 2025 muestra recuperación sostenida del mercado inmobiliario en CABA",
+      "Zonas premium (Palermo, Recoleta) lideran el crecimiento con aumentos del 3% mensual",
+      "La demanda de alquileres sigue superando la oferta, con aumentos del 10-12% anual",
+      "Barrios tradicionales (Caballito, Nuñez) mantienen precios estables con demanda constante"
+    ],
+    "por_zona": {
+      "Palermo": "Zona más dinámica. Alta demanda tanto para compra como alquiler. Stock limitado mantiene presión al alza en precios.",
+      "Recoleta": "Premium. Tiempo de venta más bajo (38 días). Preferido por inversores internacionales.",
+      "Belgrano": "Mercado estable. Buena opción para inversión a mediano plazo. Demanda familiar sostenida.",
+      "Caballito": "Barrio accesible con buena conectividad. Ideal para primer comprador. Precios estables.",
+      "Vicente_Lopez": "GBA Norte premium. Alternativa a CABA con mejor relación precio/m². Creciente demanda."
+    },
+    "tendencias_2025": [
+      "Crecimiento sostenido de zonas periféricas premium (Vicente López, San Isidro)",
+      "Aumento de la demanda de departamentos 2-3 ambientes en Palermo/Belgrano",
+      "Estabilización de precios en barrios tradicionales (Caballito, Villa Urquiza)",
+      "Incremento de inversión extranjera en propiedades premium (Recoleta, Puerto Madero)"
+    ]
+  },
+  "comparativas": {
+    "mejor_inversion_corto_plazo": {
+      "zona": "Palermo",
+      "motivo": "Mayor liquidez y apreciación mensual del 2.5%. Tiempo de venta promedio 45 días.",
+      "precio_entrada": "USD 300,000 - 400,000 (2 amb 70m²)",
+      "roi_estimado_anual": "8-10%"
+    },
+    "mejor_inversion_largo_plazo": {
+      "zona": "Vicente Lopez",
+      "motivo": "Zona en desarrollo con precios 20% menores a CABA. Potencial de apreciación del 7-8% anual.",
+      "precio_entrada": "USD 180,000 - 250,000 (2 amb 70m²)",
+      "roi_estimado_anual": "6-8%"
+    },
+    "mejor_relacion_precio_calidad": {
+      "zona": "Caballito",
+      "motivo": "Barrio consolidado con excelente conectividad. Precios accesibles y demanda estable.",
+      "precio_entrada": "USD 160,000 - 220,000 (2 amb 70m²)",
+      "roi_estimado_anual": "5-6%"
+    }
+  },
+  "preguntas_frecuentes": {
+    "cual_barrio_mas_caro": "Recoleta lidera con USD 4,800/m², seguido de Palermo (USD 4,500/m²) y Belgrano (USD 4,200/m²).",
+    "cual_barrio_mejor_inversion": "Depende del plazo. Corto plazo: Palermo por liquidez. Largo plazo: Vicente López por potencial de apreciación.",
+    "como_esta_mercado_alquileres": "Muy dinámico con aumentos del 10-12% anual. Oferta limitada mantiene presión al alza. Palermo lidera con USD 18/m².",
+    "conviene_invertir_ahora": "Sí, especialmente en zonas consolidadas. El mercado muestra recuperación sostenida y estabilidad cambiaria favorece inversión.",
+    "cuanto_tarda_vender_palermo": "Promedio 45 días para propiedades bien tasadas. Recoleta es más rápido (38 días).",
+    "diferencia_precio_caba_gba": "CABA premium 20-30% más caro que GBA Norte. Ej: Palermo USD 4,500/m² vs Vicente López USD 3,600/m²."
+  },
+  "notas_importantes": [
+    "Todos los precios son promedios del mercado. Variaciones según ubicación exacta, amenities y estado.",
+    "Datos actualizados a Enero 2025. Para información más reciente consultar con asesor.",
+    "ROI estimado no incluye gastos de mantenimiento, impuestos y comisiones.",
+    "Tiempos de venta/alquiler pueden variar según condiciones del mercado y pricing."
+  ]
+}
